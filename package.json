@@ -1,5 +1,5 @@
 {
-  "name": "env-init",
+  "name": "env-assure",
   "version": "1.0.0",
   "description": "Validates your .env file against a schema on app startup with clear, human-friendly error messages",
   "main": "dist/index.js",
@@ -13,7 +13,7 @@
     }
   },
   "bin": {
-    "env-init": "./dist/cli.js"
+    "env-assure": "./dist/cli.js"
   },
   "files": [
     "dist",

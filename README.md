@@ -1,14 +1,14 @@
-# env-check
+# env-assure
 
-> Validates your `.env` file against a schema on app startup — gives clear, human-friendly error messages instead of cryptic runtime crashes.
+> Validates your `.env` file against a schema on app startup â€” gives clear, human-friendly error messages instead of cryptic runtime crashes.
 
 ```
-[env-check] Environment validation failed (3 errors)
+[env-assure] Environment validation failed (3 errors)
 
-  ✗ Missing: DATABASE_URL (required for auth)
-    ↳ Example: DATABASE_URL=postgresql://user:pass@localhost:5432/mydb
-  ✗ Missing: REDIS_URL (required for caching)
-  ✗ Invalid: NODE_ENV must be one of [development | production | test], got "prod"
+  âœ— Missing: DATABASE_URL (required for auth)
+    â†³ Example: DATABASE_URL=postgresql://user:pass@localhost:5432/mydb
+  âœ— Missing: REDIS_URL (required for caching)
+  âœ— Invalid: NODE_ENV must be one of [development | production | test], got "prod"
 
   Fix the above and restart your application.
 ```
@@ -16,11 +16,11 @@
 ## Install
 
 ```bash
-npm install env-check
+npm install env-assure
 # or
-pnpm add env-check
+pnpm add env-assure
 # or
-yarn add env-check
+yarn add env-assure
 ```
 
 No runtime dependencies. Works with or without `dotenv`.
@@ -32,8 +32,8 @@ No runtime dependencies. Works with or without `dotenv`.
 Call `checkEnv` **once, at the very top of your entry file**, before any other imports that use environment variables.
 
 ```ts
-// src/index.ts  (or server.ts, app.ts, …)
-import { checkEnv } from "env-check";
+// src/index.ts  (or server.ts, app.ts, â€¦)
+import { checkEnv } from "env-assure";
 
 const env = checkEnv({
   DATABASE_URL: {
@@ -58,7 +58,7 @@ const env = checkEnv({
   },
   API_KEY: {
     required: true,
-    secret: true, // ← masked in all logs and summaries
+    secret: true, // â† masked in all logs and summaries
   },
   DEBUG: {
     required: false,
@@ -67,28 +67,28 @@ const env = checkEnv({
   },
 });
 
-// `env` is fully typed from the schema — no manual type declarations needed
-// env.DATABASE_URL  →  string
-// env.PORT          →  number  (auto-coerced)
-// env.NODE_ENV      →  'development' | 'production' | 'test'
-// env.DEBUG         →  boolean (auto-coerced)
+// `env` is fully typed from the schema â€” no manual type declarations needed
+// env.DATABASE_URL  â†’  string
+// env.PORT          â†’  number  (auto-coerced)
+// env.NODE_ENV      â†’  'development' | 'production' | 'test'
+// env.DEBUG         â†’  boolean (auto-coerced)
 ```
 
-`env-check` automatically loads your `.env` file (no `dotenv.config()` needed). Variables already present in `process.env` always take precedence.
+`env-assure` automatically loads your `.env` file (no `dotenv.config()` needed). Variables already present in `process.env` always take precedence.
 
 ---
 
 ## TypeScript inference
 
-`checkEnv` is fully generic — the return type is inferred directly from the schema you pass in:
+`checkEnv` is fully generic â€” the return type is inferred directly from the schema you pass in:
 
 ```ts
 const env = checkEnv({
-  PORT: { type: "port", default: "3000" }, // → number
-  DEBUG: { type: "boolean", default: "false" }, // → boolean
-  NODE_ENV: { enum: ["development", "production"] as const }, // → 'development' | 'production'
-  SCORE: { transform: (v) => parseFloat(v) }, // → number (inferred from transform)
-  OPTIONAL: { required: false }, // → string | undefined
+  PORT: { type: "port", default: "3000" }, // â†’ number
+  DEBUG: { type: "boolean", default: "false" }, // â†’ boolean
+  NODE_ENV: { enum: ["development", "production"] as const }, // â†’ 'development' | 'production'
+  SCORE: { transform: (v) => parseFloat(v) }, // â†’ number (inferred from transform)
+  OPTIONAL: { required: false }, // â†’ string | undefined
 });
 ```
 
@@ -103,17 +103,17 @@ No separate `z.infer<>` or manual interface needed.
 | Option        | Type                                                                        | Default    | Description                                                    |
 | ------------- | --------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------- |
 | `required`    | `boolean`                                                                   | `true`     | Whether the variable must be present                           |
-| `default`     | `string`                                                                    | —          | Fallback value when absent (makes the var optional implicitly) |
-| `description` | `string`                                                                    | —          | Human-readable purpose shown in error messages                 |
-| `example`     | `string`                                                                    | —          | Example value shown below missing-variable errors              |
+| `default`     | `string`                                                                    | â€”          | Fallback value when absent (makes the var optional implicitly) |
+| `description` | `string`                                                                    | â€”          | Human-readable purpose shown in error messages                 |
+| `example`     | `string`                                                                    | â€”          | Example value shown below missing-variable errors              |
 | `type`        | `'string' \| 'number' \| 'boolean' \| 'url' \| 'email' \| 'port' \| 'json'` | `'string'` | Format validation + auto-coercion                              |
-| `enum`        | `readonly string[]`                                                         | —          | Restrict to a fixed set of allowed values                      |
-| `pattern`     | `string \| RegExp`                                                          | —          | Regex the value must satisfy                                   |
-| `min`         | `number`                                                                    | —          | Minimum value (`number` / `port` types)                        |
-| `max`         | `number`                                                                    | —          | Maximum value (`number` / `port` types)                        |
+| `enum`        | `readonly string[]`                                                         | â€”          | Restrict to a fixed set of allowed values                      |
+| `pattern`     | `string \| RegExp`                                                          | â€”          | Regex the value must satisfy                                   |
+| `min`         | `number`                                                                    | â€”          | Minimum value (`number` / `port` types)                        |
+| `max`         | `number`                                                                    | â€”          | Maximum value (`number` / `port` types)                        |
 | `secret`      | `boolean`                                                                   | `false`    | Mask value with `****` in all output and logs                  |
-| `validate`    | `(value: string) => true \| string`                                         | —          | Custom validation: return `true` or an error message           |
-| `transform`   | `(value: string) => T`                                                      | —          | Transform the raw string — return type is inferred by TS       |
+| `validate`    | `(value: string) => true \| string`                                         | â€”          | Custom validation: return `true` or an error message           |
+| `transform`   | `(value: string) => T`                                                      | â€”          | Transform the raw string â€” return type is inferred by TS       |
 
 ### Type details & auto-coercion
 
@@ -124,7 +124,7 @@ No separate `z.infer<>` or manual interface needed.
 | `boolean` | `true`, `false`, `1`, `0`, `yes`, `no` (case-insensitive) | `boolean` |
 | `url`     | Starts with `http://` or `https://`                       | `string`  |
 | `email`   | Basic `user@domain.tld` format                            | `string`  |
-| `port`    | Integer between 1–65535                                   | `number`  |
+| `port`    | Integer between 1â€“65535                                   | `number`  |
 | `json`    | Valid `JSON.parse`-able string                            | `unknown` |
 
 ---
@@ -138,7 +138,7 @@ checkEnv(schema, options?)
 | Option         | Type                          | Default       | Description                                                                  |
 | -------------- | ----------------------------- | ------------- | ---------------------------------------------------------------------------- |
 | `path`         | `string`                      | `'.env'`      | Path to the `.env` file                                                      |
-| `paths`        | `string \| string[]`          | —             | Multiple `.env` files in priority order (first = highest). Overrides `path`. |
+| `paths`        | `string \| string[]`          | â€”             | Multiple `.env` files in priority order (first = highest). Overrides `path`. |
 | `loadDotEnv`   | `boolean`                     | `true`        | Whether to load and merge the `.env` file(s)                                 |
 | `onError`      | `'exit' \| 'throw' \| 'warn'` | `'exit'`      | What to do when validation fails                                             |
 | `exitCode`     | `number`                      | `1`           | Exit code used when `onError === 'exit'`                                     |
@@ -148,13 +148,13 @@ checkEnv(schema, options?)
 
 ### `onError` behaviours
 
-- **`'exit'`** (default) — prints errors to `stderr` and calls `process.exit(1)`. Ideal for production servers that must not start with bad config.
-- **`'throw'`** — throws an `EnvValidationError`. Good for test suites and programmatic use.
-- **`'warn'`** — prints errors to `stderr` and continues. Useful during local development.
+- **`'exit'`** (default) â€” prints errors to `stderr` and calls `process.exit(1)`. Ideal for production servers that must not start with bad config.
+- **`'throw'`** â€” throws an `EnvValidationError`. Good for test suites and programmatic use.
+- **`'warn'`** â€” prints errors to `stderr` and continues. Useful during local development.
 
 ---
 
-## `secret` — masking sensitive values
+## `secret` â€” masking sensitive values
 
 Mark any variable as `secret: true` to prevent its value from appearing in error output or the `printSummary` table.
 
@@ -168,20 +168,20 @@ checkEnv({
 If `API_KEY` is set to the wrong type, the error reads:
 
 ```
-✗ Invalid: API_KEY must be a valid URL (http/https), got "****"
+âœ— Invalid: API_KEY must be a valid URL (http/https), got "****"
 ```
 
 ---
 
-## `transform` — return any type
+## `transform` â€” return any type
 
 Use `transform` to convert the raw string to any value. TypeScript infers the return type automatically.
 
 ```ts
 const env = checkEnv({
-  PORT: { type: "port", transform: (v) => parseInt(v, 10) }, // → number
-  ALLOWED_IPS: { transform: (v) => v.split(",") }, // → string[]
-  CONFIG: { type: "json", transform: (v) => JSON.parse(v) as MyConfig }, // → MyConfig
+  PORT: { type: "port", transform: (v) => parseInt(v, 10) }, // â†’ number
+  ALLOWED_IPS: { transform: (v) => v.split(",") }, // â†’ string[]
+  CONFIG: { type: "json", transform: (v) => JSON.parse(v) as MyConfig }, // â†’ MyConfig
 });
 ```
 
@@ -189,7 +189,7 @@ const env = checkEnv({
 
 ---
 
-## `validate` — custom logic
+## `validate` â€” custom logic
 
 Return `true` to pass, or a string to fail with a custom message:
 
@@ -221,7 +221,7 @@ Variables already set in `process.env` always win over any file.
 
 ---
 
-## `printSummary` — startup table
+## `printSummary` â€” startup table
 
 Print a compact summary of all validated variables at startup:
 
@@ -230,28 +230,28 @@ checkEnv(schema, { printSummary: true });
 ```
 
 ```
-[env-check] Validation summary (5/6 passed)
+[env-assure] Validation summary (5/6 passed)
 
-  DATABASE_URL    ✓  ****
-  REDIS_URL       ✓  ****
-  PORT            ✓  3000
-  NODE_ENV        ✓  production
-  API_KEY         ✗  (missing)
-  DEBUG           ✓  false
+  DATABASE_URL    âœ“  ****
+  REDIS_URL       âœ“  ****
+  PORT            âœ“  3000
+  NODE_ENV        âœ“  production
+  API_KEY         âœ—  (missing)
+  DEBUG           âœ“  false
 ```
 
 ---
 
-## CLI — `npx env-check`
+## CLI â€” `npx env-assure`
 
 Validate a `.env` file from the command line (useful in CI):
 
 ```bash
-npx env-check --schema schema.json --env .env.production
+npx env-assure --schema schema.json --env .env.production
 ```
 
 ```
-Usage: env-check [options]
+Usage: env-assure [options]
 
 Options:
   --schema <path>       Path to schema JSON file (required)
@@ -274,17 +274,17 @@ Options:
 }
 ```
 
-> Note: The `validate` and `transform` function options are only available via the programmatic API — they cannot be expressed in a JSON file.
+> Note: The `validate` and `transform` function options are only available via the programmatic API â€” they cannot be expressed in a JSON file.
 
 ---
 
 ## Using with dotenv
 
-You don't need `dotenv` — `env-check` loads `.env` itself. But if you already use it, disable the built-in loader:
+You don't need `dotenv` â€” `env-assure` loads `.env` itself. But if you already use it, disable the built-in loader:
 
 ```ts
 import "dotenv/config";
-import { checkEnv } from "env-check";
+import { checkEnv } from "env-assure";
 
 checkEnv(schema, { loadDotEnv: false });
 ```
@@ -296,7 +296,7 @@ checkEnv(schema, { loadDotEnv: false });
 Pass a custom `env` object and `onError: 'throw'` to keep tests hermetic:
 
 ```ts
-import { checkEnv, EnvValidationError } from "env-check";
+import { checkEnv, EnvValidationError } from "env-assure";
 
 it("rejects missing DATABASE_URL", () => {
   expect(() =>
@@ -313,7 +313,7 @@ it("rejects missing DATABASE_URL", () => {
 ## Lower-level API
 
 ```ts
-import { validate } from "env-check";
+import { validate } from "env-assure";
 
 const result = validate(process.env, {
   PORT: { type: "port", default: "3000" },
@@ -347,15 +347,15 @@ console.log(result.env.PORT); // 3000
 
 MIT
 
-> Validates your `.env` file against a schema on app startup — gives clear, human-friendly error messages instead of cryptic runtime crashes.
+> Validates your `.env` file against a schema on app startup â€” gives clear, human-friendly error messages instead of cryptic runtime crashes.
 
 ```
-[env-check] Environment validation failed (3 errors)
+[env-assure] Environment validation failed (3 errors)
 
-  ✗ Missing: DATABASE_URL (required for auth)
-    ↳ Example: DATABASE_URL=postgresql://user:pass@localhost:5432/mydb
-  ✗ Missing: REDIS_URL (required for caching)
-  ✗ Invalid: NODE_ENV must be one of [development | production | test], got "prod"
+  âœ— Missing: DATABASE_URL (required for auth)
+    â†³ Example: DATABASE_URL=postgresql://user:pass@localhost:5432/mydb
+  âœ— Missing: REDIS_URL (required for caching)
+  âœ— Invalid: NODE_ENV must be one of [development | production | test], got "prod"
 
   Fix the above and restart your application.
 ```
@@ -363,11 +363,11 @@ MIT
 ## Install
 
 ```bash
-npm install env-check
+npm install env-assure
 # or
-pnpm add env-check
+pnpm add env-assure
 # or
-yarn add env-check
+yarn add env-assure
 ```
 
 No runtime dependencies. Works with or without `dotenv`.
@@ -379,8 +379,8 @@ No runtime dependencies. Works with or without `dotenv`.
 Call `checkEnv` **once, at the very top of your entry file**, before any other imports that use environment variables.
 
 ```ts
-// src/index.ts  (or server.ts, app.ts, …)
-import { checkEnv } from "env-check";
+// src/index.ts  (or server.ts, app.ts, â€¦)
+import { checkEnv } from "env-assure";
 
 const env = checkEnv({
   DATABASE_URL: {
@@ -414,7 +414,7 @@ const env = checkEnv({
 console.log(env.DATABASE_URL);
 ```
 
-`env-check` automatically loads your `.env` file (no `dotenv.config()` needed). Variables already present in `process.env` always take precedence.
+`env-assure` automatically loads your `.env` file (no `dotenv.config()` needed). Variables already present in `process.env` always take precedence.
 
 ---
 
@@ -425,14 +425,14 @@ console.log(env.DATABASE_URL);
 | Option        | Type                                                                        | Default    | Description                                                    |
 | ------------- | --------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------- |
 | `required`    | `boolean`                                                                   | `true`     | Whether the variable must be present                           |
-| `default`     | `string`                                                                    | —          | Fallback value when absent (makes the var optional implicitly) |
-| `description` | `string`                                                                    | —          | Human-readable purpose shown in error messages                 |
-| `example`     | `string`                                                                    | —          | Example value shown below missing-variable errors              |
+| `default`     | `string`                                                                    | â€”          | Fallback value when absent (makes the var optional implicitly) |
+| `description` | `string`                                                                    | â€”          | Human-readable purpose shown in error messages                 |
+| `example`     | `string`                                                                    | â€”          | Example value shown below missing-variable errors              |
 | `type`        | `'string' \| 'number' \| 'boolean' \| 'url' \| 'email' \| 'port' \| 'json'` | `'string'` | Format / type validation                                       |
-| `enum`        | `string[]`                                                                  | —          | Restrict to a fixed set of allowed values                      |
-| `pattern`     | `string \| RegExp`                                                          | —          | Regex the value must satisfy                                   |
-| `min`         | `number`                                                                    | —          | Minimum value (`number` / `port` types)                        |
-| `max`         | `number`                                                                    | —          | Maximum value (`number` / `port` types)                        |
+| `enum`        | `string[]`                                                                  | â€”          | Restrict to a fixed set of allowed values                      |
+| `pattern`     | `string \| RegExp`                                                          | â€”          | Regex the value must satisfy                                   |
+| `min`         | `number`                                                                    | â€”          | Minimum value (`number` / `port` types)                        |
+| `max`         | `number`                                                                    | â€”          | Maximum value (`number` / `port` types)                        |
 
 ### Type details
 
@@ -443,7 +443,7 @@ console.log(env.DATABASE_URL);
 | `boolean` | `true`, `false`, `1`, `0`, `yes`, `no` (case-insensitive) |
 | `url`     | Starts with `http://` or `https://`                       |
 | `email`   | Basic `user@domain.tld` format                            |
-| `port`    | Integer between 1–65535                                   |
+| `port`    | Integer between 1â€“65535                                   |
 | `json`    | Valid `JSON.parse`-able string                            |
 
 ---
@@ -465,19 +465,19 @@ checkEnv(schema, options?)
 
 ### `onError` behaviours
 
-- **`'exit'`** (default) — prints errors to `stderr` and calls `process.exit(1)`. Ideal for production servers that must not start with bad config.
-- **`'throw'`** — throws an `EnvValidationError`. Good for test suites and programmatic use.
-- **`'warn'`** — prints errors to `stderr` and continues. Useful during local development.
+- **`'exit'`** (default) â€” prints errors to `stderr` and calls `process.exit(1)`. Ideal for production servers that must not start with bad config.
+- **`'throw'`** â€” throws an `EnvValidationError`. Good for test suites and programmatic use.
+- **`'warn'`** â€” prints errors to `stderr` and continues. Useful during local development.
 
 ---
 
 ## Using with dotenv
 
-You don't need `dotenv` — `env-check` loads `.env` itself. But if you already use it, just disable the built-in loader:
+You don't need `dotenv` â€” `env-assure` loads `.env` itself. But if you already use it, just disable the built-in loader:
 
 ```ts
 import "dotenv/config";
-import { checkEnv } from "env-check";
+import { checkEnv } from "env-assure";
 
 checkEnv(schema, { loadDotEnv: false });
 ```
@@ -489,7 +489,7 @@ checkEnv(schema, { loadDotEnv: false });
 Pass a custom `env` object and `onError: 'throw'` to keep tests hermetic:
 
 ```ts
-import { checkEnv, EnvValidationError } from "env-check";
+import { checkEnv, EnvValidationError } from "env-assure";
 
 it("rejects missing DATABASE_URL", () => {
   expect(() =>
@@ -508,7 +508,7 @@ it("rejects missing DATABASE_URL", () => {
 If you need more control, use the `validate` function directly:
 
 ```ts
-import { validate } from "env-check";
+import { validate } from "env-assure";
 
 const result = validate(process.env, {
   PORT: { type: "port", default: "3000" },
