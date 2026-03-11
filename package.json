@@ -1,6 +1,6 @@
 {
   "name": "env-assure",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Validates your .env file against a schema on app startup with clear, human-friendly error messages",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -13,7 +13,7 @@
     }
   },
   "bin": {
-    "env-assure": "./dist/cli.js"
+    "env-assure": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -39,6 +39,14 @@
   ],
   "author": "Aashish Satyal",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AshishSatyal/env-assure.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AshishSatyal/env-assure/issues"
+  },
+  "homepage": "https://github.com/AshishSatyal/env-assure#readme",
   "devDependencies": {
     "@types/node": "^25.4.0",
     "tsup": "^8.3.0",
